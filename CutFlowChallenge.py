@@ -13,6 +13,8 @@ import os.path
 import optparse
 import time
 
+import sqltable as sql
+
 # ----------------------------------------------------------------------------
 def parse_input():
     """
@@ -141,12 +143,18 @@ def main():
 
     cuts = constructCutFlow(inputs.cut_flow_file)
 
+    sql.constructSqlTable(cuts + ['name','notes'], file_name = 'cutflow.db')
+
     user_cut_flows = {}
     for f in files:
         user = readUserCutFlow(f, cuts)
         user_cut_flows[user['name']] = user
 
-    displayCutFlows(cuts, user_cut_flows)
+    sql.writeCutsToSql(user_cut_flows, 'cutflow.db')
+
+    read_back_cutflows = sql.readCutsFromSql('cutflow.db')
+
+    displayCutFlows(cuts, read_back_cutflows)
 
 
 # =============================================================================
